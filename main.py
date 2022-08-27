@@ -9,5 +9,7 @@ if func.check_date(today, date):
     track_list = func.top100(req_url)
     spotify = func.Spotify()
     spotify.get_tracks(track_list)
+    spotify.create_playlist(date=date)
+    spotify.add_tracks()
 else:
     print("Check the Date entered")

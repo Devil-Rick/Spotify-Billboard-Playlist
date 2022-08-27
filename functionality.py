@@ -37,19 +37,33 @@ class Spotify:
                                                             redirect_uri=config.SPOTIFY_URL,
                                                             scope=config.SPOTIFY_SCOPE))
         self.song_list = []
+        self.id = ""
+        self.playlist_id = ""
 
     def user_data(self):
-        print(self.sp.current_user())
+        user = self.sp.current_user()
+        self.id = user["id"]
+        return user
 
     def get_tracks(self, all_track):
         for track in all_track:
             track_id = self.sp.search(q=track, limit=1, type='track')
             track_name = track
-            track_uri = track_id["tracks"]["items"][0]["album"]["uri"]
+            track_uri = track_id["tracks"]["items"][0]["uri"]
             self.song_list.append({"track": track_name,
                                    "uri": track_uri})
-        self.print_tracks()
+
+    def create_playlist(self, date):
+        self.user_data()
+        new_playlist = self.sp.user_playlist_create(user=self.id,
+                                                    name=f"{date} BillBoard Top 100",
+                                                    description="Contains top 100 Billboard Songs",
+                                                    public=False)
+        self.playlist_id = new_playlist["id"]
+
+    def add_tracks(self):
+        track_uri_list = [song["uri"] for song in self.song_list]
+        self.sp.playlist_add_items(playlist_id=self.playlist_id, items=track_uri_list)
 
     def print_tracks(self):
         pprint.pprint(self.song_list)
-
